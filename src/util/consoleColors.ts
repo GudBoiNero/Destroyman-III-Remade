@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const consoleColors = {
     RESET: "\x1b[0m",
     BRIGHT: "\x1b[1m",
@@ -8,6 +6,7 @@ const consoleColors = {
     BLINK: "\x1b[5m",
     REVERSE: "\x1b[7m",
     HIDDEN: "\x1b[8m",
+
     FG_BLACK: "\x1b[30m",
     FG_RED: "\x1b[31m",
     FG_GREEN: "\x1b[32m",
@@ -17,6 +16,7 @@ const consoleColors = {
     FG_CYAN: "\x1b[36m",
     FG_WHITE: "\x1b[37m",
     FG_GRAY: "\x1b[90m",
+
     BG_BLACK: "\x1b[40m",
     BG_RED: "\x1b[41m",
     BG_GREEN: "\x1b[42m",
@@ -26,5 +26,6 @@ const consoleColors = {
     BG_CYAN: "\x1b[46m",
     BG_WHITE: "\x1b[47m",
     BG_GRAY: "\x1b[100m",
-};
-exports.default = consoleColors;
+}
+
+export default consoleColors
