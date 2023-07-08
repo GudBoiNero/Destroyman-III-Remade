@@ -29,18 +29,15 @@ module.exports = {
         option.setName('sheet')
             .setRequired(true)
             .setDescription('...');
-        (0, getSheets_1.getData)('sheets').forEach(sheetName => {
+        (0, getSheets_1.getData)('sheets').forEach((sheetName) => {
             option.addChoices({ name: sheetName, value: sheetName });
         });
         return option;
     }),
-    /**
-     *
-     * @param { CommandInteraction } interaction
-     */
     execute(interaction) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const query = interaction.options.get('query').value;
+            const query = (_a = interaction.options.get('query')) === null || _a === void 0 ? void 0 : _a.value;
             const tokens = (0, queryHandler_1.default)(query).tokens;
             console.log(tokens);
             yield interaction.reply(`Search returned ${tokens.length} results.` + '```json\n' + JSON.stringify(tokens, null, '\t') + '```');

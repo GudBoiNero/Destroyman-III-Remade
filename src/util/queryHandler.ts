@@ -7,7 +7,7 @@ export class Token {
     /**
      * @param {String} property
      */
-    constructor(property = "") {
+    constructor(property: string = "") {
         this.property = property;
     }
     property = "";
@@ -18,7 +18,7 @@ export class NumberToken extends Token {
      * @param {String} property
      * @param {Number} value
      */
-    constructor(property, value) {
+    constructor(property: string, value: number) {
         super(property);
 
         this.value = value;
@@ -32,7 +32,7 @@ export class RangeToken extends Token {
      * @param {Number} min
      * @param {Number} max
      */
-    constructor(property, min, max) {
+    constructor(property: string, min: number, max: number) {
         super(property);
 
         this.min = min;
@@ -48,7 +48,7 @@ export class StringToken extends Token {
      * @param {String} property
      * @param {String} value
      */
-    constructor(property, value) {
+    constructor(property: string, value: string) {
         super(property);
 
         this.value = value;
@@ -85,7 +85,10 @@ export default function tokenize(query: string) {
         } catch (error) {
             err = error as string;
             tokens = [];
-            return error;
+            return {
+                err: err,
+                tokens: tokens
+            };
         }
 
         // Handle single number
@@ -105,36 +108,30 @@ export default function tokenize(query: string) {
         ) {
             let min = 0,
                 max = 100;
-            if (value.startsWith("+")) {
+            if (value.startsWith("+") || value.endsWith("+")) {
                 let num = value.slice(0);
                 min = parseInt(num);
                 max = 100;
-            } else if (value.startsWith("-")) {
+            } else if (value.startsWith("-") || value.endsWith("-")) {
                 let num = value.slice(0);
                 max = parseInt(num);
                 min = 0;
-            } else if (value.endsWith("+")) {
-                min = parseInt(value);
-                max = 100;
-            } else if (value.endsWith("-")) {
-                max = parseInt(value);
-                min = 0;
-            }
+            } 
             token = new RangeToken(property, min, max);
         } else if (new RegExp(/^[^0-9]+$/).test(value)) {
             token = new StringToken(property, value);
         }
         // Handle range -> ex. 5:100
         else {
-            let lHand = new RegExp(/([\d]*):/).exec(value)?.[0];
-            let rHand = new RegExp(/:([\d]*)/).exec(value)?.[0];
+            let lHand = new RegExp(/([\d]*):/).exec(value)?.[1];
+            let rHand = new RegExp(/:([\d]*)/).exec(value)?.[1];
+
+            console.log(lHand, rHand)
 
             if (lHand && rHand) {
                 token = new RangeToken(property, parseInt(lHand), parseInt(rHand));
             }
         }
-
-        console.log(token)
 
         if (token) {
             tokens.push(token);

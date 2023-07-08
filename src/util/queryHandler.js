@@ -80,7 +80,10 @@ function tokenize(query) {
         catch (error) {
             err = error;
             tokens = [];
-            return error;
+            return {
+                err: err,
+                tokens: tokens
+            };
         }
         // Handle single number
         // Regex tests if the string is only numbers
@@ -96,22 +99,14 @@ function tokenize(query) {
             value.endsWith("-") ||
             value.endsWith("+")) {
             let min = 0, max = 100;
-            if (value.startsWith("+")) {
+            if (value.startsWith("+") || value.endsWith("+")) {
                 let num = value.slice(0);
                 min = parseInt(num);
                 max = 100;
             }
-            else if (value.startsWith("-")) {
+            else if (value.startsWith("-") || value.endsWith("-")) {
                 let num = value.slice(0);
                 max = parseInt(num);
-                min = 0;
-            }
-            else if (value.endsWith("+")) {
-                min = parseInt(value);
-                max = 100;
-            }
-            else if (value.endsWith("-")) {
-                max = parseInt(value);
                 min = 0;
             }
             token = new RangeToken(property, min, max);
@@ -121,13 +116,13 @@ function tokenize(query) {
         }
         // Handle range -> ex. 5:100
         else {
-            let lHand = (_a = new RegExp(/([\d]*):/).exec(value)) === null || _a === void 0 ? void 0 : _a[0];
-            let rHand = (_b = new RegExp(/:([\d]*)/).exec(value)) === null || _b === void 0 ? void 0 : _b[0];
+            let lHand = (_a = new RegExp(/([\d]*):/).exec(value)) === null || _a === void 0 ? void 0 : _a[1];
+            let rHand = (_b = new RegExp(/:([\d]*)/).exec(value)) === null || _b === void 0 ? void 0 : _b[1];
+            console.log(lHand, rHand);
             if (lHand && rHand) {
                 token = new RangeToken(property, parseInt(lHand), parseInt(rHand));
             }
         }
-        console.log(token);
         if (token) {
             tokens.push(token);
         }
