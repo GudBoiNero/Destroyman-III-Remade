@@ -8,50 +8,29 @@ const consoleColors_1 = __importDefault(require("./consoleColors"));
 const replaceAll_1 = require("./replaceAll");
 const SEPERATOR = ";";
 class Token {
-    /**
-     * @param {String} property
-     */
     constructor(property = "") {
-        this.property = "";
         this.property = property;
     }
 }
 exports.Token = Token;
 class NumberToken extends Token {
-    /**
-     * @param {String} property
-     * @param {Number} value
-     */
     constructor(property, value) {
         super(property);
-        this.value = 0;
         this.value = value;
     }
 }
 exports.NumberToken = NumberToken;
 class RangeToken extends Token {
-    /**
-     * @param {String} property
-     * @param {Number} min
-     * @param {Number} max
-     */
     constructor(property, min, max) {
         super(property);
-        this.min = 0;
-        this.max = 0;
         this.min = min;
         this.max = max;
     }
 }
 exports.RangeToken = RangeToken;
 class StringToken extends Token {
-    /**
-     * @param {String} property
-     * @param {String} value
-     */
     constructor(property, value) {
         super(property);
-        this.value = "";
         this.value = value;
     }
 }

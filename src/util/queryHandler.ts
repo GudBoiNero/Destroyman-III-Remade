@@ -1,60 +1,39 @@
 import consoleColors from "./consoleColors";
-import { replaceAll, replaceAllInList } from "./replaceAll";
+import { replaceAll } from "./replaceAll";
 
 const SEPERATOR = ";";
 
 export class Token {
-    /**
-     * @param {String} property
-     */
+    property: string;
     constructor(property: string = "") {
         this.property = property;
     }
-    property = "";
 }
 
 export class NumberToken extends Token {
-    /**
-     * @param {String} property
-     * @param {Number} value
-     */
+    value: number;
     constructor(property: string, value: number) {
         super(property);
-
         this.value = value;
     }
-    value = 0;
 }
 
 export class RangeToken extends Token {
-    /**
-     * @param {String} property
-     * @param {Number} min
-     * @param {Number} max
-     */
+    min: number;
+    max: number;
     constructor(property: string, min: number, max: number) {
         super(property);
-
         this.min = min;
         this.max = max;
     }
-
-    min = 0;
-    max = 0;
 }
 
 export class StringToken extends Token {
-    /**
-     * @param {String} property
-     * @param {String} value
-     */
+    value: string;
     constructor(property: string, value: string) {
         super(property);
-
         this.value = value;
     }
-
-    value = "";
 }
 
 export default function tokenize(query: string) {
