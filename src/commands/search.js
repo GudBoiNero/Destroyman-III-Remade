@@ -20,20 +20,46 @@ module.exports = {
         .setName('search')
         .setDescription('Search for entries using an advanced query system.')
         .addStringOption(option => {
-        option.setName('query')
+        option.setName('sheet')
             .setRequired(true)
+            .setAutocomplete(true)
             .setDescription('...');
+        /*
+        getData('sheets').forEach((sheetName: any) => {
+            option.addChoices({ name: sheetName, value: sheetName })
+        });
+        */
         return option;
     })
         .addStringOption(option => {
-        option.setName('sheet')
+        option.setName('query')
             .setRequired(true)
+            .setAutocomplete(true)
             .setDescription('...');
-        (0, getSheets_1.getData)('sheets').forEach((sheetName) => {
-            option.addChoices({ name: sheetName, value: sheetName });
-        });
         return option;
     }),
+    autocomplete(interaction) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const focused = interaction.options.getFocused(true);
+            let choices = [];
+            const sheets = (0, getSheets_1.getExtraData)().sheets;
+            if (focused.name === 'sheet') {
+                choices = sheets;
+            }
+            else if (focused.name === 'query') {
+                // This code is experimental. In reality we should be tokenizing the `sheetOption` and then returning choices based on it
+                const sheetOption = interaction.options.getString('sheet') || '';
+                console.log(sheetOption, (0, getSheets_1.getExtraData)());
+                if (sheets.includes(sheetOption)) {
+                    choices = (0, getSheets_1.getExtraData)().sheetProperties[sheetOption];
+                }
+            }
+            console.log(choices);
+            const filtered = choices.filter(choice => choice.startsWith(focused.value) || choice.includes(focused.value)).slice(0, 25);
+            console.log(filtered);
+            yield interaction.respond(filtered.map(choice => ({ name: choice, value: choice })));
+        });
+    },
     execute(interaction) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {

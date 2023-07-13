@@ -6,17 +6,18 @@ import { DATA_PATH } from '../../config.json'
 import { GROUPING, REPLACEMENTS, REMOVE } from '../../parseConfig.json'
 
 import jsdom from 'jsdom'
+import { strikethrough } from 'discord.js'
 const { JSDOM } = jsdom
 global.DOMParser = new JSDOM().window.DOMParser
 
 export type ExtraData = {
     sheets: string[],
-    sheetProperties: { string: Array<string> }
+    sheetProperties: {}
 }
 
 export async function fetchData() {
     console.log(consoleColors.FG_MAGENTA + 'Fetching Spreadsheet...')
-    const extraData = {sheets: new Array<string>, sheetProperties: {}} as ExtraData
+    const extraData = {sheets: new Array<string>, sheetProperties: new Map} as ExtraData
     const sheetsData = {}
     const response = await fetch("https://docs.google.com/spreadsheets/d/1AKC_KhnCe44gtWmfI2cmKjvIDbTfC0ACfP15Z7UauvU/htmlview")
 
@@ -32,8 +33,8 @@ export async function fetchData() {
     const sheets = (() => {
         const temp: any[] = []
         for (var i = 0, length = sheetsViewport?.length || 0; i < length; i++) {
-            const id = (sheetsViewport?.[i] as any).id
-            const sheetButton = doc.getElementById(`sheet-button-${id}`)
+            const id: string = (sheetsViewport?.[i] as any).id
+            const sheetButton = doc?.getElementById(`sheet-button-${id}`)
 
             if (sheetButton) {
                 temp.push({ 'name': sheetButton.textContent?.toLowerCase(), 'id': id, 'element': doc.getElementById(id) })
@@ -206,15 +207,20 @@ export async function fetchData() {
     //#region get_extra_data
 
     // Get sheet names
-    console.log(sheetsData)
     for (const sheet of sheets) {
         extraData.sheets.push(sheet.name)
 
         // Get sheet entry properties
         for (const entry of sheetsData[sheet.name]) {
-            console.log(entry)
+            for (const key of Object.keys(entry)) {
+                const props = extraData.sheetProperties[sheet.name]
+                if (props?.includes(key)) continue;
+                extraData.sheetProperties[sheet.name] = [...props ?? [], key]
+            }
         }
     }
+
+    console.log(extraData)
 
     //#endregion
 

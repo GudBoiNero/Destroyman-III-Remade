@@ -67,23 +67,36 @@ client.on(discord_js_1.Events.ClientReady, () => __awaiter(void 0, void 0, void 
     console.log(consoleColors_1.default.FG_GREEN + 'Ready!');
 }));
 client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!interaction.isChatInputCommand())
-        return;
-    const command = interaction.client.commands.get(interaction.commandName);
-    if (!command) {
-        console.error(`No command matching ${interaction.commandName} was found.`);
-        return;
-    }
-    try {
-        yield command.execute(interaction);
-    }
-    catch (error) {
-        console.error(error);
-        if (interaction.replied || interaction.deferred) {
-            yield interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+    if (interaction.isChatInputCommand()) {
+        const command = interaction.client.commands.get(interaction.commandName);
+        if (!command) {
+            console.error(`No command matching ${interaction.commandName} was found.`);
+            return;
         }
-        else {
-            yield interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        try {
+            yield command.execute(interaction);
+        }
+        catch (error) {
+            console.error(error);
+            if (interaction.replied || interaction.deferred) {
+                yield interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
+            else {
+                yield interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
+        }
+    }
+    else if (interaction.isAutocomplete()) {
+        const command = interaction.client.commands.get(interaction.commandName);
+        if (!command) {
+            console.error(`No command matching ${interaction.commandName} was found.`);
+            return;
+        }
+        try {
+            yield command.autocomplete(interaction);
+        }
+        catch (error) {
+            console.error(error);
         }
     }
 }));

@@ -26,7 +26,7 @@ function fetchData() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         console.log(consoleColors_1.default.FG_MAGENTA + 'Fetching Spreadsheet...');
-        const extraData = { sheets: new Array, sheetProperties: {} };
+        const extraData = { sheets: new Array, sheetProperties: new Map };
         const sheetsData = {};
         const response = yield (0, node_fetch_1.default)("https://docs.google.com/spreadsheets/d/1AKC_KhnCe44gtWmfI2cmKjvIDbTfC0ACfP15Z7UauvU/htmlview");
         if (!response.ok) {
@@ -43,7 +43,7 @@ function fetchData() {
             const temp = [];
             for (var i = 0, length = (sheetsViewport === null || sheetsViewport === void 0 ? void 0 : sheetsViewport.length) || 0; i < length; i++) {
                 const id = (sheetsViewport === null || sheetsViewport === void 0 ? void 0 : sheetsViewport[i]).id;
-                const sheetButton = doc.getElementById(`sheet-button-${id}`);
+                const sheetButton = doc === null || doc === void 0 ? void 0 : doc.getElementById(`sheet-button-${id}`);
                 if (sheetButton) {
                     temp.push({ 'name': (_a = sheetButton.textContent) === null || _a === void 0 ? void 0 : _a.toLowerCase(), 'id': id, 'element': doc.getElementById(id) });
                 }
@@ -209,14 +209,19 @@ function fetchData() {
         //#endregion
         //#region get_extra_data
         // Get sheet names
-        console.log(sheetsData);
         for (const sheet of sheets) {
             extraData.sheets.push(sheet.name);
             // Get sheet entry properties
             for (const entry of sheetsData[sheet.name]) {
-                console.log(entry);
+                for (const key of Object.keys(entry)) {
+                    const props = extraData.sheetProperties[sheet.name];
+                    if (props === null || props === void 0 ? void 0 : props.includes(key))
+                        continue;
+                    extraData.sheetProperties[sheet.name] = [...props !== null && props !== void 0 ? props : [], key];
+                }
             }
         }
+        console.log(extraData);
         //#endregion
         // Write to file
         const dataFilePath = config_json_1.DATA_PATH;
