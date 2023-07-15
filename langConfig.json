@@ -1,0 +1,7 @@
+{
+    "ReservedCharacters": {
+        "SEPARATOR": ";",
+        "ASSIGN": "=",
+        "RANGE_SEPARATOR": ":"
+    }
+}

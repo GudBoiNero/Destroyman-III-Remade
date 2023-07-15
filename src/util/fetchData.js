@@ -26,7 +26,10 @@ function fetchData() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         console.log(consoleColors_1.default.FG_MAGENTA + 'Fetching Spreadsheet...');
-        const extraData = { sheets: new Array, sheetProperties: new Map };
+        const extraData = {
+            sheets: [],
+            sheetProperties: new Map()
+        };
         const sheetsData = {};
         const response = yield (0, node_fetch_1.default)("https://docs.google.com/spreadsheets/d/1AKC_KhnCe44gtWmfI2cmKjvIDbTfC0ACfP15Z7UauvU/htmlview");
         if (!response.ok) {

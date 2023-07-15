@@ -1,6 +1,7 @@
 import { getExtraData } from '../util/getSheets'
-import { AutocompleteFocusedOption, AutocompleteInteraction, CommandInteraction, SlashCommandBuilder } from 'discord.js'
-import tokenize from '../util/queryHandler'
+import { AutocompleteFocusedOption, AutocompleteInteraction, CommandInteraction, SlashCommandBuilder, strikethrough } from 'discord.js'
+import tokenize, { NumberToken, RangeToken } from '../util/queryHandler'
+import { ReservedCharacters } from '../../langConfig.json'
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,26 +29,45 @@ module.exports = {
         }),
     async autocomplete(interaction: AutocompleteInteraction) {
         const focused: AutocompleteFocusedOption = interaction.options.getFocused(true);
-        let choices: Array<string> = []
         const sheets = getExtraData().sheets
+        let choices: Array<string> = (() => {
 
-        if (focused.name === 'sheet') {
-            choices = sheets
-        } else if (focused.name === 'query') {
-            // This code is experimental. In reality we should be tokenizing the `sheetOption` and then returning choices based on it
+            if (focused.name === 'sheet') {
+                return sheets
+            } else if (focused.name === 'query') {
+                // This code is experimental. In reality we should be tokenizing the `sheetOption` and then returning choices based on it
+                const sheet = interaction.options.getString('sheet') as string
+                const query = interaction.options.getString('query') as string
+                const props: string[] = getExtraData().sheetProperties[sheet] ?? []
+                
+                const statements = query.split(ReservedCharacters.SEPARATOR)
+                const stmt = statements?.at(-1) as string // only auto complete the current statement
+                
+                // Check if there is a lefthand or not. 
+                // IF - Suggest the righthand accordingly
+                // NOT - Add a possible choice + ASSIGN character to the end
+    
+                // get 'agi' from 'agi=1:100'
+                const lHand = stmt?.split(ReservedCharacters.ASSIGN)?.at(0);
+                // get '1:100' from 'agi=1:100', '20' from 'str=20', or '1+' from 'mtl=1+'
+                const rHand = stmt?.split(ReservedCharacters.ASSIGN)?.at(1);
+                
+                if (!rHand) {
+                    return props.map(x => x + ReservedCharacters.ASSIGN)
+                } else {
+                    return [query + ReservedCharacters.SEPARATOR];
+                }
 
-            const sheetOption = interaction.options.getString('sheet') || ''
-            console.log(sheetOption, getExtraData())
-            if (sheets.includes(sheetOption)) {
-                choices = getExtraData().sheetProperties[sheetOption]
-            } 
-        }
+                return [stmt]
+            }
+            return []
+        })()
 
-        console.log(choices)
+        
+
         const filtered = choices.filter(choice => 
             choice.startsWith(focused.value) || choice.includes(focused.value)
         ).slice(0, 25);
-        console.log(filtered)
         await interaction.respond(
 			filtered.map(choice => ({ name: choice, value: choice })),
 		);
@@ -56,7 +76,6 @@ module.exports = {
         const query = interaction.options.get('query')?.value
         const tokens = tokenize(query as string).tokens
 
-        console.log(tokens)
         await interaction.reply(`Search returned ${tokens.length} results.` + '```json\n' + JSON.stringify(tokens, null, '\t') + '```')
     }
 }

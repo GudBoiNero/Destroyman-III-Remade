@@ -6,18 +6,20 @@ import { DATA_PATH } from '../../config.json'
 import { GROUPING, REPLACEMENTS, REMOVE } from '../../parseConfig.json'
 
 import jsdom from 'jsdom'
-import { strikethrough } from 'discord.js'
 const { JSDOM } = jsdom
 global.DOMParser = new JSDOM().window.DOMParser
 
 export type ExtraData = {
     sheets: string[],
-    sheetProperties: {}
+    sheetProperties: Map<string, Map<string, string>>
 }
 
 export async function fetchData() {
     console.log(consoleColors.FG_MAGENTA + 'Fetching Spreadsheet...')
-    const extraData = {sheets: new Array<string>, sheetProperties: new Map} as ExtraData
+    const extraData: ExtraData = {
+        sheets: [],
+        sheetProperties: new Map()
+    }
     const sheetsData = {}
     const response = await fetch("https://docs.google.com/spreadsheets/d/1AKC_KhnCe44gtWmfI2cmKjvIDbTfC0ACfP15Z7UauvU/htmlview")
 
