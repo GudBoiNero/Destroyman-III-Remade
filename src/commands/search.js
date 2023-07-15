@@ -53,8 +53,9 @@ module.exports = {
                     const sheet = interaction.options.getString('sheet');
                     const query = interaction.options.getString('query');
                     const props = (_a = (0, getSheets_1.getExtraData)().sheetProperties[sheet]) !== null && _a !== void 0 ? _a : [];
-                    const statements = query.split(langConfig_json_1.ReservedCharacters.SEPARATOR);
+                    const statements = query.split(langConfig_json_1.ReservedCharacters.SEPARATOR).map(x => x.trim());
                     const stmt = statements === null || statements === void 0 ? void 0 : statements.at(-1); // only auto complete the current statement
+                    const prevStatements = statements.length > 1 ? query.slice(0, -stmt.length) : '';
                     // Check if there is a lefthand or not. 
                     // IF - Suggest the righthand accordingly
                     // NOT - Add a possible choice + ASSIGN character to the end
@@ -63,12 +64,11 @@ module.exports = {
                     // get '1:100' from 'agi=1:100', '20' from 'str=20', or '1+' from 'mtl=1+'
                     const rHand = (_c = stmt === null || stmt === void 0 ? void 0 : stmt.split(langConfig_json_1.ReservedCharacters.ASSIGN)) === null || _c === void 0 ? void 0 : _c.at(1);
                     if (!rHand) {
-                        return props.map(x => x + langConfig_json_1.ReservedCharacters.ASSIGN);
+                        return props.map(x => prevStatements + x + langConfig_json_1.ReservedCharacters.ASSIGN);
                     }
                     else {
                         return [query + langConfig_json_1.ReservedCharacters.SEPARATOR];
                     }
-                    return [stmt];
                 }
                 return [];
             })();

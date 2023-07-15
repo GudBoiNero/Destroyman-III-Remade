@@ -39,38 +39,37 @@ module.exports = {
                 const sheet = interaction.options.getString('sheet') as string
                 const query = interaction.options.getString('query') as string
                 const props: string[] = getExtraData().sheetProperties[sheet] ?? []
-                
-                const statements = query.split(ReservedCharacters.SEPARATOR)
+
+                const statements = query.split(ReservedCharacters.SEPARATOR).map(x => x.trim())
                 const stmt = statements?.at(-1) as string // only auto complete the current statement
-                
+                const prevStatements = statements.length > 1 ? query.slice(0, -stmt.length) : ''
+
                 // Check if there is a lefthand or not. 
                 // IF - Suggest the righthand accordingly
                 // NOT - Add a possible choice + ASSIGN character to the end
-    
+
                 // get 'agi' from 'agi=1:100'
                 const lHand = stmt?.split(ReservedCharacters.ASSIGN)?.at(0);
                 // get '1:100' from 'agi=1:100', '20' from 'str=20', or '1+' from 'mtl=1+'
                 const rHand = stmt?.split(ReservedCharacters.ASSIGN)?.at(1);
-                
+
                 if (!rHand) {
-                    return props.map(x => x + ReservedCharacters.ASSIGN)
+                    return props.map(x => prevStatements + x + ReservedCharacters.ASSIGN)
                 } else {
                     return [query + ReservedCharacters.SEPARATOR];
                 }
-
-                return [stmt]
             }
             return []
         })()
 
-        
 
-        const filtered = choices.filter(choice => 
+
+        const filtered = choices.filter(choice =>
             choice.startsWith(focused.value) || choice.includes(focused.value)
         ).slice(0, 25);
         await interaction.respond(
-			filtered.map(choice => ({ name: choice, value: choice })),
-		);
+            filtered.map(choice => ({ name: choice, value: choice })),
+        );
     },
     async execute(interaction: CommandInteraction) {
         const query = interaction.options.get('query')?.value
