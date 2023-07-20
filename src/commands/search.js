@@ -43,6 +43,8 @@ module.exports = {
         return __awaiter(this, void 0, void 0, function* () {
             const focused = interaction.options.getFocused(true);
             const sheets = (0, getSheets_1.getExtraData)().sheets;
+            const sheet = interaction.options.getString('sheet');
+            const query = interaction.options.getString('query');
             let choices = (() => {
                 var _a, _b, _c;
                 if (focused.name === 'sheet') {
@@ -50,8 +52,6 @@ module.exports = {
                 }
                 else if (focused.name === 'query') {
                     // This code is experimental. In reality we should be tokenizing the `sheetOption` and then returning choices based on it
-                    const sheet = interaction.options.getString('sheet');
-                    const query = interaction.options.getString('query');
                     const props = (_a = (0, getSheets_1.getExtraData)().sheetProperties[sheet]) !== null && _a !== void 0 ? _a : [];
                     const statements = query.split(langConfig_json_1.ReservedCharacters.SEPARATOR).map(x => x.trim());
                     const stmt = statements === null || statements === void 0 ? void 0 : statements.at(-1); // only auto complete the current statement
@@ -67,12 +67,14 @@ module.exports = {
                         return props.map(x => prevStatements + x + langConfig_json_1.ReservedCharacters.ASSIGN);
                     }
                     else {
-                        return [query + langConfig_json_1.ReservedCharacters.SEPARATOR];
+                        return [query + (query.endsWith(langConfig_json_1.ReservedCharacters.SEPARATOR) ? '' : langConfig_json_1.ReservedCharacters.SEPARATOR)];
                     }
                 }
                 return [];
             })();
-            const filtered = choices.filter(choice => choice.startsWith(focused.value) || choice.includes(focused.value)).slice(0, 25);
+            console.log({ query: query, choices: choices });
+            const filtered = choices.filter(choice => choice.startsWith(focused.value) ||
+                choice.includes(focused.value)).slice(0, 25);
             yield interaction.respond(filtered.map(choice => ({ name: choice, value: choice })));
         });
     },

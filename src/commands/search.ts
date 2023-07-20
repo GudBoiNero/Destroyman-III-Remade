@@ -30,14 +30,15 @@ module.exports = {
     async autocomplete(interaction: AutocompleteInteraction) {
         const focused: AutocompleteFocusedOption = interaction.options.getFocused(true);
         const sheets = getExtraData().sheets
+        const sheet = interaction.options.getString('sheet') as string
+        const query = interaction.options.getString('query') as string
+
         let choices: Array<string> = (() => {
 
             if (focused.name === 'sheet') {
                 return sheets
             } else if (focused.name === 'query') {
                 // This code is experimental. In reality we should be tokenizing the `sheetOption` and then returning choices based on it
-                const sheet = interaction.options.getString('sheet') as string
-                const query = interaction.options.getString('query') as string
                 const props: string[] = getExtraData().sheetProperties[sheet] ?? []
 
                 const statements = query.split(ReservedCharacters.SEPARATOR).map(x => x.trim())
@@ -56,16 +57,17 @@ module.exports = {
                 if (!rHand) {
                     return props.map(x => prevStatements + x + ReservedCharacters.ASSIGN)
                 } else {
-                    return [query + ReservedCharacters.SEPARATOR];
+                    return [query + (query.endsWith(ReservedCharacters.SEPARATOR) ? '' : ReservedCharacters.SEPARATOR)];
                 }
             }
             return []
         })()
 
-
+        console.log({query: query, choices: choices})
 
         const filtered = choices.filter(choice =>
-            choice.startsWith(focused.value) || choice.includes(focused.value)
+            choice.startsWith(focused.value) || 
+            choice.includes(focused.value) 
         ).slice(0, 25);
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice })),

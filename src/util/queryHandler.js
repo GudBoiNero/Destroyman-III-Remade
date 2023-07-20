@@ -56,7 +56,7 @@ function tokenize(query) {
             // Handle single number
             // Regex tests if the string is only numbers
             if (new RegExp(/^\d+$/).test(value) == true) {
-                token = new NumberToken(property, parseInt(value));
+                token = new NumberToken(property, parseFloat(value));
             }
             // Handle greater than or lesser thans ->
             // ex. 5+
@@ -67,27 +67,27 @@ function tokenize(query) {
                 value.endsWith("-") ||
                 value.endsWith("+")) {
                 let min = 0, max = 100;
+                const exp = new RegExp(/\d*\.?\d/).exec(value);
+                console.log(exp);
                 if (value.startsWith("+") || value.endsWith("+")) {
-                    let num = value.slice(0);
-                    min = parseInt(num);
+                    min = parseFloat(exp === null || exp === void 0 ? void 0 : exp[1]) || min;
                     max = 100;
                 }
                 else if (value.startsWith("-") || value.endsWith("-")) {
-                    let num = value.slice(0);
-                    max = parseInt(num);
+                    max = parseFloat(exp === null || exp === void 0 ? void 0 : exp[1]) || max;
                     min = 0;
                 }
                 token = new RangeToken(property, min, max);
             }
-            else if (new RegExp(/^[^0-9]+$/).test(value)) {
+            else if (new RegExp(/[\d*\.?\d]+/).test(value)) {
                 token = new StringToken(property, value);
             }
             // Handle range -> ex. 5:100
             else {
-                let lHand = (_a = new RegExp(/([\d]*):/).exec(value)) === null || _a === void 0 ? void 0 : _a[1];
-                let rHand = (_b = new RegExp(/:([\d]*)/).exec(value)) === null || _b === void 0 ? void 0 : _b[1];
+                let lHand = (_a = new RegExp(/(\d*\.?\d):/).exec(value)) === null || _a === void 0 ? void 0 : _a[1];
+                let rHand = (_b = new RegExp(/:(\d*\.?\d)/).exec(value)) === null || _b === void 0 ? void 0 : _b[1];
                 if (lHand && rHand) {
-                    token = new RangeToken(property, parseInt(lHand), parseInt(rHand));
+                    token = new RangeToken(property, parseFloat(lHand), parseFloat(rHand));
                 }
             }
             if (token) {
