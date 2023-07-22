@@ -1,6 +1,6 @@
 import { getExtraData } from '../util/getSheets'
 import { AutocompleteFocusedOption, AutocompleteInteraction, CommandInteraction, SlashCommandBuilder, strikethrough } from 'discord.js'
-import tokenize, { NumberToken, RangeToken } from '../util/queryHandler'
+import tokenize from '../util/queryHandler'
 import { ReservedCharacters } from '../../langConfig.json'
 
 module.exports = {
