@@ -50,45 +50,41 @@ function tokenize(query) {
         let value;
         try {
             // get 'agi' from 'agi=1:100'
-            property = new RegExp(/([\w]*)=/).exec(stmt)[1];
+            property = stmt.split("=")[0];
             // get '1:100' from 'agi=1:100', '20' from 'str=20', or '1+' from 'mtl=1+'
-            value = new RegExp(/=(\w*.?[\w]*)/).exec(stmt)[1];
+            value = stmt.split("=")[1];
             // Handle single number
             // Regex tests if the string is only numbers
-            if (new RegExp(/^\d+$/).test(value) == true) {
+            if (new RegExp(/^[\d]+$/).test(value)) {
                 token = new NumberToken(property, parseFloat(value));
             }
             // Handle greater than or lesser thans ->
             // ex. 5+
             // ex. -50
             // ex. +25
-            else if (value.startsWith("-") ||
-                value.startsWith("+") ||
-                value.endsWith("-") ||
+            else if (value.endsWith("-") ||
                 value.endsWith("+")) {
                 let min = 0, max = 100;
-                const exp = new RegExp(/\d*\.?\d/).exec(value);
-                console.log(exp);
-                if (value.startsWith("+") || value.endsWith("+")) {
-                    min = parseFloat(exp === null || exp === void 0 ? void 0 : exp[1]) || min;
+                if (value.endsWith("+")) {
+                    let num = value.slice(0);
+                    min = parseFloat(value);
                     max = 100;
                 }
-                else if (value.startsWith("-") || value.endsWith("-")) {
-                    max = parseFloat(exp === null || exp === void 0 ? void 0 : exp[1]) || max;
+                else if (value.endsWith("-")) {
+                    max = parseFloat(value);
                     min = 0;
                 }
                 token = new RangeToken(property, min, max);
-            }
-            else if (new RegExp(/[\d*\.?\d]+/).test(value)) {
-                token = new StringToken(property, value);
-            }
-            // Handle range -> ex. 5:100
-            else {
-                let lHand = (_a = new RegExp(/(\d*\.?\d):/).exec(value)) === null || _a === void 0 ? void 0 : _a[1];
-                let rHand = (_b = new RegExp(/:(\d*\.?\d)/).exec(value)) === null || _b === void 0 ? void 0 : _b[1];
+            } // Handle ranges - 0:100 
+            else if (value.includes(':')) {
+                let lHand = (_a = value.split(':')) === null || _a === void 0 ? void 0 : _a[0];
+                let rHand = (_b = value.split(':')) === null || _b === void 0 ? void 0 : _b[1];
                 if (lHand && rHand) {
                     token = new RangeToken(property, parseFloat(lHand), parseFloat(rHand));
                 }
+            }
+            else {
+                token = new StringToken(property, value);
             }
             if (token) {
                 tokens.push(token);
